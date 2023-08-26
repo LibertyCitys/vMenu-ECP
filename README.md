@@ -19,32 +19,20 @@ The original vMenu was lacking on options and new content. I made this version a
 If you want to help out provide translations to vMenu, you can [click here](https://github.com/ProjectFairnessLabs/GroupTranslationDB) and do a pull request!
 
 --------
-# Developers
-- Ribbitpoison
-- RickyB505
+# Credits
 - TristenCommunity
-- 1Mosheba
-- QuadrupleTurbo
-- Starman0620
-- UnsayingCheetah
 - DeckardCain000
-- Shrimpy
-- L'kid & Proky0
+- QuadrupleTurbo
+- Lincoln HUX
+- Starman0620
+- 1Mosheba
+- AvarianKnight
+- Wildbrick142
+- MichaelCoding25
 - AlexR32
 - Freedy69
-- MichaelCoding25
-- ChatGGS/gg781
-- AvarianKnight
 - AvaNOX
-- Wildbrick142
-- Lincoln HUX
-
-
-# Feature Suggestions
 - TayMcKenzieNZ
-- zwrks
-
-# Original Author
 - Vespura
 --------
 # Discord

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,7 +13,6 @@ namespace vMenuClient
         private static int MovingSpeed { get; set; } = 0;
         private static int Scale { get; set; } = -1;
         private static bool FollowCamMode { get; set; } = true;
-        private static bool FlyCamMode { get; set; } = true;
 
 
         private List<string> speeds = new List<string>()
@@ -105,7 +103,7 @@ namespace vMenuClient
 
                     BeginScaleformMovieMethod(Scale, "SET_DATA_SLOT");
                     ScaleformMovieMethodAddParamInt(6);
-                    PushScaleformMovieMethodParameterString("~INPUT_F975668C~");
+                    PushScaleformMovieMethodParameterString(GetControlInstructionalButton(0, MainMenu.NoClipKey, 1));
                     PushScaleformMovieMethodParameterString($"Toggle NoClip");
                     EndScaleformMovieMethod();
 
@@ -186,7 +184,6 @@ namespace vMenuClient
                 if (Game.PlayerPed.IsInVehicle())
                     Game.DisableControlThisFrame(0, Control.VehicleRadioWheel);
 
-                var xoff = 0.0f;
                 var yoff = 0.0f;
                 var zoff = 0.0f;
 
@@ -213,27 +210,13 @@ namespace vMenuClient
                     {
                         yoff = -0.5f;
                     }
-                    if (Game.IsDisabledControlPressed(0, Control.MoveLeftOnly))
+                    if (!FollowCamMode && Game.IsDisabledControlPressed(0, Control.MoveLeftOnly))
                     {
-                        if (FlyCamMode && FollowCamMode)
-                        {
-                            xoff = -0.5f;
-                        }
-                        else if (!FollowCamMode)
-                        {
-                            SetEntityHeading(Game.PlayerPed.Handle, GetEntityHeading(Game.PlayerPed.Handle) + 3f);
-                        }
+                        SetEntityHeading(Game.PlayerPed.Handle, GetEntityHeading(Game.PlayerPed.Handle) + 3f);
                     }
-                    if (Game.IsDisabledControlPressed(0, Control.MoveRightOnly))
+                    if (!FollowCamMode && Game.IsDisabledControlPressed(0, Control.MoveRightOnly))
                     {
-                        if (FlyCamMode && FollowCamMode)
-                        {
-                            xoff = 0.5f;
-                        }
-                        else if (!FollowCamMode)
-                        {
-                            SetEntityHeading(Game.PlayerPed.Handle, GetEntityHeading(Game.PlayerPed.Handle) - 3f);
-                        }
+                        SetEntityHeading(Game.PlayerPed.Handle, GetEntityHeading(Game.PlayerPed.Handle) - 3f);
                     }
                     if (Game.IsDisabledControlPressed(0, Control.Cover))
                     {
@@ -245,37 +228,18 @@ namespace vMenuClient
                     }
                     if (Game.IsDisabledControlJustPressed(0, Control.VehicleHeadlight))
                     {
-                        if (FlyCamMode)
-                        {
-                            FlyCamMode = false;
-                        }
-                        else if (FollowCamMode)
-                        {
-                            FollowCamMode = false;
-                        }
-                        else
-                        {
-                            FollowCamMode = true;
-                            FlyCamMode = true;
-                        }
+                        FollowCamMode = !FollowCamMode;
                     }
                 }
-
                 float moveSpeed = MovingSpeed;
                 if (MovingSpeed > speeds.Count / 2)
                 {                    
                     moveSpeed *= 1.8f;
                 }
                 moveSpeed = moveSpeed / (1f / GetFrameTime()) * 60;
-                float num = (FlyCamMode ? MathUtil.DegreesToRadians(GetGameplayCamRelativePitch()) : 0f);
-                float rotxy = (float)Math.Cos((double)num);
-                float rotz = (float)Math.Sin((double)num);
-                xoff *= rotxy;
-                yoff *= rotxy;
-                zoff += rotz * yoff;
-                newPos = GetOffsetFromEntityInWorldCoords(noclipEntity, xoff * (moveSpeed + 0.3f), yoff * (moveSpeed + 0.3f), zoff * (moveSpeed + 0.3f));
-                var heading = GetEntityHeading(noclipEntity);
+                newPos = GetOffsetFromEntityInWorldCoords(noclipEntity, 0f, yoff * (moveSpeed + 0.3f), zoff * (moveSpeed + 0.3f));
 
+                var heading = GetEntityHeading(noclipEntity);
                 SetEntityVelocity(noclipEntity, 0f, 0f, 0f);
                 SetEntityRotation(noclipEntity, 0f, 0f, 0f, 0, false);
                 SetEntityHeading(noclipEntity, FollowCamMode ? GetGameplayCamRelativeHeading() : heading);

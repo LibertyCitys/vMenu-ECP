@@ -30,21 +30,21 @@ namespace vMenuClient
 
             menu = new Menu("Teleport Options", "Teleport Related Options");
             // menu items
-            var teleportMenu = new Menu("Teleport Locations", "Teleport Locations");
-            var teleportMenuBtn = new MenuItem("Teleport Locations", "Teleport to pre-configured locations, added by the server owner.");
+            Menu teleportMenu = new Menu("Teleport Locations", "Teleport Locations");
+            MenuItem teleportMenuBtn = new MenuItem("Teleport Locations", "Teleport to pre-configured locations, added by the server owner.");
             MenuController.AddSubmenu(menu, teleportMenu);
             MenuController.BindMenuItem(menu, teleportMenu, teleportMenuBtn);
 
             // Keybind settings menu items
-            var kbTpToWaypoint = new MenuCheckboxItem("Teleport To Waypoint", "Teleport to your waypoint when pressing the keybind. By default, this keybind is set to ~r~F7~s~, server owners are able to change this however so ask them if you don't know what it is.", KbTpToWaypoint);
-            var backBtn = new MenuItem("Back");
+            MenuCheckboxItem kbTpToWaypoint = new MenuCheckboxItem("Teleport To Waypoint", "Teleport to your waypoint when pressing the keybind. By default, this keybind is set to ~r~F7~s~, server owners are able to change this however so ask them if you don't know what it is.", KbTpToWaypoint);
+            MenuItem backBtn = new MenuItem("Back");
 
             // Teleportation options
             if (IsAllowed(Permission.TPTeleportToWp) || IsAllowed(Permission.TPTeleportLocations) || IsAllowed(Permission.TPTeleportToCoord))
             {
-                var tptowp = new MenuItem("Teleport To Waypoint", "Teleport to the waypoint on your map.");
-                var tpToCoord = new MenuItem("Teleport To Coords", "Enter the X, Y, Z coordinates and you will be teleported to that location.");
-                var saveLocationBtn = new MenuItem("Save Teleport Location", "Adds your current location to the teleport locations menu and saves it on the server.");
+                MenuItem tptowp = new MenuItem("Teleport To Waypoint", "Teleport to the waypoint on your map.");
+                MenuItem tpToCoord = new MenuItem("Teleport To Coords", "Enter the X, Y, Z coordinates and you will be teleported to that location.");
+                MenuItem saveLocationBtn = new MenuItem("Save Teleport Location", "Adds your current location to the teleport locations menu and saves it on the server.");
                 menu.OnItemSelect += async (sender, item, index) =>
                 {
                     // Teleport to waypoint.
@@ -54,30 +54,34 @@ namespace vMenuClient
                     }
                     else if (item == tpToCoord)
                     {
-                        var x = await GetUserInput("Enter X coordinate.");
+                        string x = await GetUserInput("Enter X coordinate.");
                         if (string.IsNullOrEmpty(x))
                         {
                             Notify.Error(CommonErrors.InvalidInput);
                             return;
                         }
-                        var y = await GetUserInput("Enter Y coordinate.");
+                        string y = await GetUserInput("Enter Y coordinate.");
                         if (string.IsNullOrEmpty(y))
                         {
                             Notify.Error(CommonErrors.InvalidInput);
                             return;
                         }
-                        var z = await GetUserInput("Enter Z coordinate.");
+                        string z = await GetUserInput("Enter Z coordinate.");
                         if (string.IsNullOrEmpty(z))
                         {
                             Notify.Error(CommonErrors.InvalidInput);
                             return;
                         }
 
-                        if (!float.TryParse(x, out var posX))
+                        float posX = 0f;
+                        float posY = 0f;
+                        float posZ = 0f;
+
+                        if (!float.TryParse(x, out posX))
                         {
-                            if (int.TryParse(x, out var intX))
+                            if (int.TryParse(x, out int intX))
                             {
-                                posX = intX;
+                                posX = (float)intX;
                             }
                             else
                             {
@@ -85,11 +89,11 @@ namespace vMenuClient
                                 return;
                             }
                         }
-                        if (!float.TryParse(y, out var posY))
+                        if (!float.TryParse(y, out posY))
                         {
-                            if (int.TryParse(y, out var intY))
+                            if (int.TryParse(y, out int intY))
                             {
-                                posY = intY;
+                                posY = (float)intY;
                             }
                             else
                             {
@@ -97,11 +101,11 @@ namespace vMenuClient
                                 return;
                             }
                         }
-                        if (!float.TryParse(z, out var posZ))
+                        if (!float.TryParse(z, out posZ))
                         {
-                            if (int.TryParse(z, out var intZ))
+                            if (int.TryParse(z, out int intZ))
                             {
-                                posZ = intZ;
+                                posZ = (float)intZ;
                             }
                             else
                             {
@@ -145,7 +149,7 @@ namespace vMenuClient
                                 var y = Math.Round(location.coordinates.Y, 2);
                                 var z = Math.Round(location.coordinates.Z, 2);
                                 var heading = Math.Round(location.heading, 2);
-                                var tpBtn = new MenuItem(location.name, $"Teleport to ~y~{location.name}~n~~s~x: ~y~{x}~n~~s~y: ~y~{y}~n~~s~z: ~y~{z}~n~~s~heading: ~y~{heading}") { ItemData = location };
+                                MenuItem tpBtn = new MenuItem(location.name, $"Teleport to ~y~{location.name}~n~~s~x: ~y~{x}~n~~s~y: ~y~{y}~n~~s~z: ~y~{z}~n~~s~heading: ~y~{heading}") { ItemData = location };
                                 teleportMenu.AddMenuItem(tpBtn);
                             }
                         }

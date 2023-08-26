@@ -9,9 +9,6 @@ using MenuAPI;
 
 using Newtonsoft.Json;
 
-using vMenuClient.data;
-using vMenuClient.menus;
-
 using static CitizenFX.Core.Native.API;
 using static CitizenFX.Core.UI.Screen;
 using static vMenuShared.PermissionsManager;
@@ -91,9 +88,9 @@ namespace vMenuClient
         {
             if (veh != null && veh.Exists())
             {
-                for (var i = 0; i < 2; i++)
+                for (int i = 0; i < 2; i++)
                 {
-                    var timer = GetGameTimer();
+                    int timer = GetGameTimer();
                     while (GetGameTimer() - timer < 50)
                     {
                         SoundVehicleHornThisFrame(veh.Handle);
@@ -233,7 +230,7 @@ namespace vMenuClient
         /// <returns></returns>
         public static float GetPointingPitch()
         {
-            var pitch = GetGameplayCamRelativePitch();
+            float pitch = GetGameplayCamRelativePitch();
             if (pitch < -70f)
             {
                 pitch = -70f;
@@ -253,7 +250,7 @@ namespace vMenuClient
         /// <returns></returns>
         public static float GetPointingHeading()
         {
-            var heading = GetGameplayCamRelativeHeading();
+            float heading = GetGameplayCamRelativeHeading();
             if (heading < -180f)
             {
                 heading = -180f;
@@ -275,20 +272,20 @@ namespace vMenuClient
         /// <returns></returns>
         public static bool GetPointingIsBlocked()
         {
-            var hit = false;
-            var rawHeading = GetGameplayCamRelativeHeading() / 90f;
-            var heading = (float)MathUtil.Clamp(rawHeading, -180.0f, 180.0f);
+            bool hit = false;
+            float rawHeading = GetGameplayCamRelativeHeading() / 90f;
+            float heading = (float)MathUtil.Clamp(rawHeading, -180.0f, 180.0f);
             heading += 180.0f;
             heading /= 360.0f;
-            var v1 = ((0.7f - 0.3f) * heading) + 0.3f;
-            var pos0 = new Vector3(-0.2f, v1, 0.6f);
-            var rot = new Vector3(0f, 0f, rawHeading);
-            var vec1 = Vector3.Zero;
+            float v1 = ((0.7f - 0.3f) * heading) + 0.3f;
+            Vector3 pos0 = new Vector3(-0.2f, v1, 0.6f);
+            Vector3 rot = new Vector3(0f, 0f, rawHeading);
+            Vector3 vec1 = Vector3.Zero;
 
             // pos0, rot
             // ----
-            var f0 = (float)Math.Cos(rot.X);
-            var f1 = (float)Math.Sin(rot.X);
+            float f0 = (float)Math.Cos(rot.X);
+            float f1 = (float)Math.Sin(rot.X);
             vec1.X = pos0.X;
             vec1.Y = (f0 * pos0.Y) - (f1 * pos0.Z);
             vec1.Z = (f1 * pos0.Y) + (f0 * pos0.Z);
@@ -310,25 +307,20 @@ namespace vMenuClient
             vec1.Z = pos0.Z;
             pos0 = vec1;
 
-            var pos1 = GetOffsetFromEntityInWorldCoords(Game.PlayerPed.Handle, pos0.X, pos0.Y, pos0.Z);
-            var handle = StartShapeTestCapsule(pos1.X, pos1.Y, pos1.Z - 0.2f, pos1.X, pos1.Y, pos1.Z + 0.2f, 0.4f, 95, Game.PlayerPed.Handle, 7);
-            var outPos = Vector3.Zero;
-            var surfaceNormal = Vector3.Zero;
-            var entityHit = 0;
+            Vector3 pos1 = GetOffsetFromEntityInWorldCoords(Game.PlayerPed.Handle, pos0.X, pos0.Y, pos0.Z);
+            int handle = StartShapeTestCapsule(pos1.X, pos1.Y, (pos1.Z - 0.2f), pos1.X, pos1.Y, (pos1.Z + 0.2f), 0.4f, 95, Game.PlayerPed.Handle, 7);
+            Vector3 outPos = Vector3.Zero;
+            Vector3 surfaceNormal = Vector3.Zero;
+            int entityHit = 0;
             GetShapeTestResult(handle, ref hit, ref outPos, ref surfaceNormal, ref entityHit);
 
             if (MainMenu.DebugMode)
             {
                 if (hit)
-                {
                     DrawMarker(28, pos1.X, pos1.Y, pos1.Z, 0f, 0f, 0f, 0f, 0f, 0f, 0.4f, 0.4f, 0.4f, 123, 0, 0, 128, false, false, 0, false, null, null, false);
-                }
                 else
-                {
                     DrawMarker(28, pos1.X, pos1.Y, pos1.Z, 0f, 0f, 0f, 0f, 0f, 0f, 0.4f, 0.4f, 0.4f, 123, 53, 200, 128, false, false, 0, false, null, null, false);
-                }
-
-                DrawLine(pos1.X, pos1.Y, pos1.Z - 0.2f, pos1.X, pos1.Y, pos1.Z + 0.2f, 255, 0, 0, 255);
+                DrawLine(pos1.X, pos1.Y, (pos1.Z - 0.2f), pos1.X, pos1.Y, (pos1.Z + 0.2f), 255, 0, 0, 255);
                 DrawTextOnScreen("Blocking: " + hit.ToString(), 0f, 0f);
             }
             return hit;
@@ -346,10 +338,10 @@ namespace vMenuClient
             DriveWanderTaskActive = false;
             DriveToWpTaskActive = true;
 
-            var waypoint = World.WaypointPosition;
+            Vector3 waypoint = World.WaypointPosition;
 
-            var veh = GetVehicle();
-            var model = (uint)veh.Model.Hash;
+            Vehicle veh = GetVehicle();
+            uint model = (uint)veh.Model.Hash;
 
             SetDriverAbility(Game.PlayerPed.Handle, 1f);
             SetDriverAggressiveness(Game.PlayerPed.Handle, 0f);
@@ -366,8 +358,8 @@ namespace vMenuClient
             DriveWanderTaskActive = true;
             DriveToWpTaskActive = false;
 
-            var veh = GetVehicle();
-            var model = (uint)veh.Model.Hash;
+            Vehicle veh = GetVehicle();
+            uint model = (uint)veh.Model.Hash;
 
             SetDriverAbility(Game.PlayerPed.Handle, 1f);
             SetDriverAggressiveness(Game.PlayerPed.Handle, 0f);
@@ -406,11 +398,11 @@ namespace vMenuClient
             if (player.IsActive || player is InfinityPlayer)
             {
                 Vector3 playerPos;
-                var wasActive = true;
+                bool wasActive = true;
 
                 if (player.IsActive)
                 {
-                    var playerPedObj = player.Character;
+                    Ped playerPedObj = player.Character;
                     if (Game.PlayerPed == playerPedObj)
                     {
                         Notify.Error("Sorry, you can ~r~~h~not~h~ ~s~teleport to yourself!");
@@ -461,10 +453,10 @@ namespace vMenuClient
                     if (IsPedInAnyVehicle(playerPed, false))
                     {
                         // Get the vehicle of the specified player.
-                        var vehicle = GetVehicle(new Player(playerId), false);
+                        Vehicle vehicle = GetVehicle(new Player(playerId), false);
                         if (vehicle != null)
                         {
-                            var totalVehicleSeats = GetVehicleModelNumberOfSeats(GetVehicleModel(vehicle: vehicle.Handle));
+                            int totalVehicleSeats = GetVehicleModelNumberOfSeats(GetVehicleModel(vehicle: vehicle.Handle));
 
                             // Does the vehicle exist? Is it NOT dead/broken? Are there enough vehicle seats empty?
                             if (vehicle.Exists() && !vehicle.IsDead && IsAnyVehicleSeatEmpty(vehicle.Handle))
@@ -519,8 +511,8 @@ namespace vMenuClient
                 var veh = GetVehicle();
                 bool inVehicle() => veh != null && veh.Exists() && Game.PlayerPed == veh.Driver;
 
-                var vehicleRestoreVisibility = inVehicle() && veh.IsVisible;
-                var pedRestoreVisibility = Game.PlayerPed.IsVisible;
+                bool vehicleRestoreVisibility = inVehicle() && veh.IsVisible;
+                bool pedRestoreVisibility = Game.PlayerPed.IsVisible;
 
                 // Freeze vehicle or player location and fade out the entity to the network.
                 if (inVehicle())
@@ -552,15 +544,15 @@ namespace vMenuClient
                 int tempTimer;
 
                 // This will be used to get the return value from the groundz native.
-                var groundZ = 850.0f;
+                float groundZ = 850.0f;
 
                 // Bool used to determine if the groundz coord could be found.
-                var found = false;
+                bool found = false;
 
                 // Loop from 950 to 0 for the ground z coord, and take away 25 each time.
-                for (var zz = 950.0f; zz >= 0f; zz -= 25f)
+                for (float zz = 950.0f; zz >= 0f; zz -= 25f)
                 {
-                    var z = zz;
+                    float z = zz;
                     // The z coord is alternating between a very high number, and a very low one.
                     // This way no matter the location, the actual ground z coord will always be found the fastest.
                     // If going from top > bottom then it could take a long time to reach the bottom. And vice versa.
@@ -747,11 +739,11 @@ namespace vMenuClient
             if (player != null)
             {
                 // Default kick reason.
-                var defaultReason = "You have been kicked.";
+                string defaultReason = "You have been kicked.";
                 // If we need to ask for the user's input and the default reason is the same as the provided reason, get the user input..
                 if (askUserForReason && providedReason == defaultReason)
                 {
-                    var userInput = await GetUserInput(windowTitle: "Enter Kick Message", maxInputLength: 100);
+                    string userInput = await GetUserInput(windowTitle: "Enter Kick Message", maxInputLength: 100);
                     // If the input is not invalid, set the kick reason to the user's custom message.
                     if (!string.IsNullOrEmpty(userInput))
                     {
@@ -782,7 +774,7 @@ namespace vMenuClient
         /// <param name="forever">Ban forever or ban temporarily.</param>
         public static async void BanPlayer(IPlayer player, bool forever)
         {
-            var banReason = await GetUserInput(windowTitle: "Enter Ban Reason", defaultText: "Banned by staff.", maxInputLength: 200);
+            string banReason = await GetUserInput(windowTitle: "Enter Ban Reason", defaultText: "Banned by staff.", maxInputLength: 200);
             if (!string.IsNullOrEmpty(banReason) && banReason.Length > 1)
             {
                 if (forever)
@@ -791,32 +783,24 @@ namespace vMenuClient
                 }
                 else
                 {
-                    var banDurationHours = await GetUserInput(windowTitle: "Ban Duration (in hours) - Max: 720 (1 month)", defaultText: "1.5", maxInputLength: 10);
+                    string banDurationHours = await GetUserInput(windowTitle: "Ban Duration (in hours) - Max: 720 (1 month)", defaultText: "1.5", maxInputLength: 10);
                     if (!string.IsNullOrEmpty(banDurationHours))
                     {
-                        if (double.TryParse(banDurationHours, out var banHours))
+                        if (double.TryParse(banDurationHours, out double banHours))
                         {
                             if (banHours > 0.0)
-                            {
                                 TriggerServerEvent("vMenu:TempBanPlayer", player.ServerId, banHours, banReason);
-                            }
                             else
-                            {
                                 Notify.Error("You need to enter a ban duration, enter a value ~h~between~h~ 1 and 720!");
-                            }
                         }
                         else
                         {
-                            if (int.TryParse(banDurationHours, out var banHoursInt))
+                            if (int.TryParse(banDurationHours, out int banHoursInt))
                             {
                                 if ((double)banHoursInt > 0.0)
-                                {
                                     TriggerServerEvent("vMenu:TempBanPlayer", player.ServerId, (double)banHoursInt, banReason);
-                                }
                                 else
-                                {
                                     Notify.Error("You need to enter a ban duration, enter a value ~h~between~h~ 1 and 720!");
-                                }
                             }
                             else
                             {
@@ -863,7 +847,7 @@ namespace vMenuClient
                 }
                 // Decide if the death should be using a pill or a gun (randomly).
                 uint? weaponHash = null;
-                var takePill = false;
+                bool takePill = false;
 
 
                 if (Game.PlayerPed.Weapons.HasWeapon(WeaponHash.PistolMk2))
@@ -924,12 +908,12 @@ namespace vMenuClient
 
                 // Play the animation for the pill or pistol suicide type. Pistol oddly enough does not have any sounds. Needs research.
                 ClearPedTasks(Game.PlayerPed.Handle);
-                TaskPlayAnim(Game.PlayerPed.Handle, "MP_SUICIDE", takePill ? "pill" : "pistol", 8f, -8f, -1, 270540800, 0, false, false, false);
+                TaskPlayAnim(Game.PlayerPed.Handle, "MP_SUICIDE", (takePill ? "pill" : "pistol"), 8f, -8f, -1, 270540800, 0, false, false, false);
 
-                var shot = false;
+                bool shot = false;
                 while (true)
                 {
-                    var time = GetEntityAnimCurrentTime(Game.PlayerPed.Handle, "MP_SUICIDE", takePill ? "pill" : "pistol");
+                    float time = GetEntityAnimCurrentTime(Game.PlayerPed.Handle, "MP_SUICIDE", (takePill ? "pill" : "pistol"));
                     if (HasAnimEventFired(Game.PlayerPed.Handle, (uint)GetHashKey("Fire")) && !shot) // shoot the gun if the animation event is triggered.
                     {
                         ClearEntityLastDamageEntity(Game.PlayerPed.Handle);
@@ -982,15 +966,10 @@ namespace vMenuClient
                     var playerPos = await MainMenu.RequestPlayerCoordinates(player.ServerId);
 
                     DoScreenFadeOut(500);
-                    while (IsScreenFadingOut())
-                    {
-                        await Delay(0);
-                    }
+                    while (IsScreenFadingOut()) await Delay(0);
 
-                    camera = new Camera(CreateCam("DEFAULT_SCRIPTED_CAMERA", false))
-                    {
-                        Position = playerPos + new Vector3(0, -5, 0)
-                    };
+                    camera = new Camera(CreateCam("DEFAULT_SCRIPTED_CAMERA", false));
+                    camera.Position = playerPos + new Vector3(0, -5, 0);
                     camera.PointAt(playerPos);
                     World.RenderingCamera = camera;
 
@@ -1019,11 +998,7 @@ namespace vMenuClient
                     if (NetworkIsInSpectatorMode())
                     {
                         DoScreenFadeOut(500);
-                        while (IsScreenFadingOut())
-                        {
-                            await Delay(0);
-                        }
-
+                        while (IsScreenFadingOut()) await Delay(0);
                         NetworkSetInSpectatorMode(false, 0); // disable spectating.
                         DoScreenFadeIn(500);
                         Notify.Success("Stopped spectating.", false, true);
@@ -1041,10 +1016,7 @@ namespace vMenuClient
                         if (currentlySpectatingPlayer != player.Handle && player.Character != null)
                         {
                             DoScreenFadeOut(500);
-                            while (IsScreenFadingOut())
-                            {
-                                await Delay(0);
-                            }
+                            while (IsScreenFadingOut()) await Delay(0);
 
                             if (player.Character != null)
                             {
@@ -1059,11 +1031,7 @@ namespace vMenuClient
                         else
                         {
                             DoScreenFadeOut(500);
-                            while (IsScreenFadingOut())
-                            {
-                                await Delay(0);
-                            }
-
+                            while (IsScreenFadingOut()) await Delay(0);
                             NetworkSetInSpectatorMode(false, 0); // disable spectating.
                             DoScreenFadeIn(500);
                             Notify.Success("Stopped spectating.", false, true);
@@ -1075,10 +1043,7 @@ namespace vMenuClient
                         if (player.Character != null)
                         {
                             DoScreenFadeOut(500);
-                            while (IsScreenFadingOut())
-                            {
-                                await Delay(0);
-                            }
+                            while (IsScreenFadingOut()) await Delay(0);
 
                             if (player.Character != null)
                             {
@@ -1111,7 +1076,7 @@ namespace vMenuClient
         {
 
             // Create a new vehicle.
-            var vehicle = GetVehicle();
+            Vehicle vehicle = GetVehicle();
 
             // If there are enough empty seats, continue.
             if (AreAnyVehicleSeatsFree(vehicle.Handle))
@@ -1193,12 +1158,12 @@ namespace vMenuClient
             if (vehicleName == "custom")
             {
                 // Get the result.
-                var result = await GetUserInput(windowTitle: "Enter Vehicle Name");
+                string result = await GetUserInput(windowTitle: "Enter Vehicle Name");
                 // If the result was not invalid.
                 if (!string.IsNullOrEmpty(result))
                 {
                     // Convert it into a model hash.
-                    var model = (uint)GetHashKey(result);
+                    uint model = (uint)GetHashKey(result);
                     return await SpawnVehicle(vehicleHash: model, spawnInside: spawnInside, replacePrevious: replacePrevious, skipLoad: false, vehicleInfo: new VehicleInfo(),
                         saveName: null);
                 }
@@ -1226,37 +1191,16 @@ namespace vMenuClient
         /// <param name="saveName">Used to get/set info about the saved vehicle data.</param>
         public static async Task<int> SpawnVehicle(uint vehicleHash, bool spawnInside, bool replacePrevious, bool skipLoad, VehicleInfo vehicleInfo, string saveName = null, float x = 0f, float y = 0f, float z = 0f, float heading = -1f)
         {
-            var speed = 0f;
-            var rpm = 0f;
+            float speed = 0f;
+            float rpm = 0f;
             if (Game.PlayerPed.IsInVehicle())
             {
-                var tmpOldVehicle = GetVehicle();
+                Vehicle tmpOldVehicle = GetVehicle();
                 speed = GetEntitySpeedVector(tmpOldVehicle.Handle, true).Y; // get forward/backward speed only
                 rpm = tmpOldVehicle.CurrentRPM;
             }
-            string jsonData = LoadResourceFile(GetCurrentResourceName(), "config/addons.json") ?? "{}";
-            var addons = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(jsonData);
 
-
-            foreach (string addon in addons["vehicleblacklist"])
-            {
-                uint vehicleblackist = (uint)GetHashKey(addon);
-                if ((vehicleHash == vehicleblackist) && !IsAllowed(Permission.VOVehiclesBlacklist))
-                    {
-                        Notify.Alert("You are not allowed to spawn this vehicle, because it is restricted.");
-                        return 0;     
-                    }
-                }
-            foreach (string addon in addons["disablefromdefaultlist"])
-            {
-                uint removedefaultlist = (uint)GetHashKey(addon.ToLower());
-                if ((vehicleHash == removedefaultlist) && !IsAllowed(Permission.VODisableFromDefaultList))
-                    {
-                        Notify.Alert("You are not allowed to spawn this vehicle, because it is restricted.");
-                        return 0;     
-                    }
-                }
-            var modelClass = GetVehicleClassFromName(vehicleHash);
+            int modelClass = GetVehicleClassFromName(vehicleHash);
             if (!VehicleSpawner.allowedCategories[modelClass])
             {
                 Notify.Alert("You are not allowed to spawn this vehicle, because it belongs to a category which is restricted by the server owner.");
@@ -1265,7 +1209,7 @@ namespace vMenuClient
 
             if (!skipLoad)
             {
-                var successFull = await LoadModel(vehicleHash);
+                bool successFull = await LoadModel(vehicleHash);
                 if (!successFull || !IsModelAVehicle(vehicleHash))
                 {
                     // Vehicle model is invalid.
@@ -1274,14 +1218,13 @@ namespace vMenuClient
                 }
             }
 
-
             Log("Spawning of vehicle is NOT cancelled, if this model is invalid then there's something wrong.");
 
             // Get the heading & position for where the vehicle should be spawned.
-            var pos = new Vector3(x, y, z);
+            Vector3 pos = new Vector3(x, y, z);
             if (pos.IsZero)
             {
-                pos = spawnInside ? GetEntityCoords(Game.PlayerPed.Handle, true) : GetOffsetFromEntityInWorldCoords(Game.PlayerPed.Handle, 0f, 8f, 0f);
+                pos = (spawnInside) ? GetEntityCoords(Game.PlayerPed.Handle, true) : GetOffsetFromEntityInWorldCoords(Game.PlayerPed.Handle, 0f, 8f, 0f);
                 pos += new Vector3(0f, 0f, 1f);
             }
 
@@ -1335,17 +1278,13 @@ namespace vMenuClient
             }
 
             if (_previousVehicle != null)
-            {
                 _previousVehicle.PreviouslyOwnedByPlayer = false;
-            }
 
             if (Game.PlayerPed.IsInVehicle() && x == 0f && y == 0f && z == 0f)
-            {
                 pos = GetOffsetFromEntityInWorldCoords(Game.PlayerPed.Handle, 0, 8f, 0.1f) + new Vector3(0f, 0f, 1f);
-            }
 
             // Create the new vehicle and remove the need to hotwire the car.
-            var vehicle = new Vehicle(CreateVehicle(vehicleHash, pos.X, pos.Y, pos.Z, heading, true, false))
+            Vehicle vehicle = new Vehicle(CreateVehicle(vehicleHash, pos.X, pos.Y, pos.Z, heading, true, false))
             {
                 NeedsToBeHotwired = false,
                 PreviouslyOwnedByPlayer = true,
@@ -1354,7 +1293,7 @@ namespace vMenuClient
                 IsWanted = false
             };
 
-            Log($"New vehicle, hash:{vehicleHash}, handle:{vehicle.Handle}, force-re-save-name:{saveName ?? "NONE"}, created at x:{pos.X} y:{pos.Y} z:{pos.Z + 1f} " +
+            Log($"New vehicle, hash:{vehicleHash}, handle:{vehicle.Handle}, force-re-save-name:{(saveName ?? "NONE")}, created at x:{pos.X} y:{pos.Y} z:{(pos.Z + 1f)} " +
                 $"heading:{heading}");
 
             // If spawnInside is true
@@ -1390,10 +1329,7 @@ namespace vMenuClient
             if (!vehicle.Model.IsTrain) // to be extra fucking safe
             {
                 // workaround of retarded feature above:
-                if (spawnInside || IsAllowed(Permission.BPCarlaunch))
-                {
                 SetVehicleForwardSpeed(vehicle.Handle, speed);
-                }
             }
             vehicle.CurrentRPM = rpm;
 
@@ -1422,9 +1358,7 @@ namespace vMenuClient
                 foreach (var extra in vehicleInfo.extras)
                 {
                     if (DoesExtraExist(vehicle.Handle, extra.Key))
-                    {
                         vehicle.ToggleExtra(extra.Key, extra.Value);
-                    }
                 }
 
                 SetVehicleWheelType(vehicle.Handle, vehicleInfo.wheelType);
@@ -1454,7 +1388,7 @@ namespace vMenuClient
 
                 SetVehicleEnveffScale(vehicle.Handle, vehicleInfo.enveffScale);
 
-                VehicleOptions.SetHeadlightsColorForVehicle(vehicle, vehicleInfo.headlightColor);
+                VehicleOptions._SetHeadlightsColorOnVehicle(vehicle, vehicleInfo.headlightColor);
 
                 vehicle.Mods.NeonLightsColor = System.Drawing.Color.FromArgb(red: vehicleInfo.colors["neonR"], green: vehicleInfo.colors["neonG"], blue: vehicleInfo.colors["neonB"]);
                 vehicle.Mods.SetNeonLightsOn(VehicleNeonLight.Left, vehicleInfo.neonLeft);
@@ -1467,9 +1401,7 @@ namespace vMenuClient
                     vehicleInfo.mods.ToList().ForEach(mod =>
                     {
                         if (vehicle != null && vehicle.Exists())
-                        {
                             SetVehicleMod(vehicle.Handle, mod.Key, mod.Value, vehicleInfo.customWheels);
-                        }
                     });
                 }
 
@@ -1526,12 +1458,12 @@ namespace vMenuClient
             if (Game.PlayerPed.IsInVehicle())
             {
                 // Get the vehicle.
-                var veh = GetVehicle();
+                Vehicle veh = GetVehicle();
                 // Make sure the entity is actually a vehicle and it still exists, and it's not dead.
                 if (veh != null && veh.Exists() && !veh.IsDead && veh.IsDriveable)
                 {
                     #region new saving method
-                    var mods = new Dictionary<int, int>();
+                    Dictionary<int, int> mods = new Dictionary<int, int>();
 
                     foreach (var mod in veh.Mods.GetAllMods())
                     {
@@ -1540,12 +1472,12 @@ namespace vMenuClient
 
                     #region colors
                     var colors = new Dictionary<string, int>();
-                    var primaryColor = 0;
-                    var secondaryColor = 0;
-                    var pearlescentColor = 0;
-                    var wheelColor = 0;
-                    var dashColor = 0;
-                    var trimColor = 0;
+                    int primaryColor = 0;
+                    int secondaryColor = 0;
+                    int pearlescentColor = 0;
+                    int wheelColor = 0;
+                    int dashColor = 0;
+                    int trimColor = 0;
                     GetVehicleExtraColours(veh.Handle, ref pearlescentColor, ref wheelColor);
                     GetVehicleColours(veh.Handle, ref primaryColor, ref secondaryColor);
                     GetVehicleDashboardColour(veh.Handle, ref dashColor);
@@ -1556,9 +1488,9 @@ namespace vMenuClient
                     colors.Add("wheels", wheelColor);
                     colors.Add("dash", dashColor);
                     colors.Add("trim", trimColor);
-                    var neonR = 255;
-                    var neonG = 255;
-                    var neonB = 255;
+                    int neonR = 255;
+                    int neonG = 255;
+                    int neonB = 255;
                     if (veh.Mods.HasNeonLights)
                     {
                         GetVehicleNeonLightsColour(veh.Handle, ref neonR, ref neonG, ref neonB);
@@ -1566,9 +1498,9 @@ namespace vMenuClient
                     colors.Add("neonR", neonR);
                     colors.Add("neonG", neonG);
                     colors.Add("neonB", neonB);
-                    var tyresmokeR = 0;
-                    var tyresmokeG = 0;
-                    var tyresmokeB = 0;
+                    int tyresmokeR = 0;
+                    int tyresmokeG = 0;
+                    int tyresmokeB = 0;
                     GetVehicleTyreSmokeColor(veh.Handle, ref tyresmokeR, ref tyresmokeG, ref tyresmokeB);
                     colors.Add("tyresmokeR", tyresmokeR);
                     colors.Add("tyresmokeG", tyresmokeG);
@@ -1576,7 +1508,7 @@ namespace vMenuClient
                     #endregion
 
                     var extras = new Dictionary<int, bool>();
-                    for (var i = 0; i < 20; i++)
+                    for (int i = 0; i < 20; i++)
                     {
                         if (veh.ExtraExists(i))
                         {
@@ -1584,7 +1516,7 @@ namespace vMenuClient
                         }
                     }
 
-                    var vi = new VehicleInfo()
+                    VehicleInfo vi = new VehicleInfo()
                     {
                         colors = colors,
                         customWheels = GetVehicleModVariation(veh.Handle, 23),
@@ -1606,7 +1538,7 @@ namespace vMenuClient
                         windowTint = (int)veh.Mods.WindowTint,
                         xenonHeadlights = IsToggleModOn(veh.Handle, 22),
                         bulletProofTires = !veh.CanTiresBurst,
-                        headlightColor = VehicleOptions.GetHeadlightsColorForVehicle(veh),
+                        headlightColor = VehicleOptions._GetHeadlightsColorFromVehicle(veh),
                         enveffScale = GetVehicleEnveffScale(veh.Handle)
                     };
 
@@ -1659,37 +1591,9 @@ namespace vMenuClient
             // update the saved vehicles menu list to reflect the new saved car.
             if (MainMenu.SavedVehiclesMenu != null)
             {
-                MainMenu.SavedVehiclesMenu?.UpdateMenuAvailableCategories();
+                MainMenu.SavedVehiclesMenu.UpdateMenuAvailableCategories();
             }
 
-        }
-        #endregion
-
-        #region Set Reduce Drift Suspension
-        public static void SetVehicleDriftSuspension()
-        {
-            // Only continue if the player is in a vehicle.
-            if (Game.PlayerPed.IsInVehicle())
-            {
-                // Get the vehicle.
-                Vehicle veh = GetVehicle();
-
-                // If the vehicle as the requirement to do this.
-                var StrAdvancedFlags = GetVehicleHandlingInt( veh.Handle, "CCarHandlingData", "strAdvancedFlags" );
-                if (StrAdvancedFlags == 0) 
-                {
-                    Notify.Error("This vehicle doesn't have the requirement to do this.", true, false);
-                    return;
-                }
-
-                // We send to all client
-                BaseScript.TriggerServerEvent("vMenu:SetDriftSuspension", veh.NetworkId);
-            }
-            // The player is not inside a vehicle.
-            else
-            {
-                Notify.Error(CommonErrors.NoVehicle);
-            }
         }
         #endregion
 
@@ -1711,7 +1615,7 @@ namespace vMenuClient
                 var vehString = FindKvp(findHandle);
 
                 // If it exists then the key to the list.
-                if (vehString is not "" and not null and not "NULL")
+                if (vehString != "" && vehString != null && vehString != "NULL")
                 {
                     //Debug.WriteLine(vehString);
                     savedVehicleNames.Add(vehString);
@@ -1731,21 +1635,8 @@ namespace vMenuClient
             // and add it to the dictionary above, with the vehicle save name as the key.
             foreach (var saveName in savedVehicleNames)
             {
-            string jsonData = LoadResourceFile(GetCurrentResourceName(), "config/addons.json") ?? "{}";
-            var addons = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(jsonData); 
-            var vehicleblacklist = new List<string>();
-            foreach (string addon in addons["vehicleblacklist"])
-            {
-                    uint veh = (uint)GetHashKey(addon);
-                    vehicleblacklist.Add(veh.ToString());
+                vehiclesList.Add(saveName, StorageManager.GetSavedVehicleInfo(saveName));
             }
-                if (!vehicleblacklist.Any(x => x == StorageManager.GetSavedVehicleInfo(saveName).model.ToString() && !IsAllowed(Permission.VOVehiclesBlacklist)) )
-                    {
-
-                        vehiclesList.Add(saveName, StorageManager.GetSavedVehicleInfo(saveName));
-                        
-                    }
-                }                                
             // Return the vehicle dictionary containing all vehicle save names (keys) linked to the correct vehicle
             // including all vehicle mods/customization parts.
             return vehiclesList;
@@ -1833,7 +1724,7 @@ namespace vMenuClient
             // Wait for a result.
             while (true)
             {
-                var keyboardStatus = UpdateOnscreenKeyboard();
+                int keyboardStatus = UpdateOnscreenKeyboard();
 
                 switch (keyboardStatus)
                 {
@@ -1905,7 +1796,7 @@ namespace vMenuClient
         {
             var outputString = "";
             var prevUpper = true;
-            foreach (var c in inputString)
+            foreach (char c in inputString)
             {
                 if (char.IsLetter(c) && c != ' ' && c == char.Parse(c.ToString().ToUpper()))
                 {
@@ -2079,11 +1970,11 @@ namespace vMenuClient
         {
             var realHours = hours;
             var realMinutes = minutes;
-            if (hours is > 23 or < 0)
+            if (hours > 23 || hours < 0)
             {
                 realHours = 0;
             }
-            if (minutes is > 59 or < 0)
+            if (minutes > 59 || minutes < 0)
             {
                 realMinutes = 0;
             }
@@ -2218,14 +2109,14 @@ namespace vMenuClient
                 if ((uint)GetEntityModel(Game.PlayerPed.Handle) != modelHash) // only change skins if the player is not yet using the new skin.
                 {
                     // check if the ped is in a vehicle.
-                    var wasInVehicle = Game.PlayerPed.IsInVehicle();
-                    var veh = Game.PlayerPed.CurrentVehicle;
-                    var seat = Game.PlayerPed.SeatIndex;
+                    bool wasInVehicle = Game.PlayerPed.IsInVehicle();
+                    Vehicle veh = Game.PlayerPed.CurrentVehicle;
+                    VehicleSeat seat = Game.PlayerPed.SeatIndex;
 
-                    var maxHealth = Game.PlayerPed.MaxHealth;
-                    var maxArmour = Game.Player.MaxArmor;
-                    var health = Game.PlayerPed.Health;
-                    var armour = Game.PlayerPed.Armor;
+                    int maxHealth = Game.PlayerPed.MaxHealth;
+                    int maxArmour = Game.Player.MaxArmor;
+                    int health = Game.PlayerPed.Health;
+                    int armour = Game.PlayerPed.Armor;
 
                     // set the model
                     SetPlayerModel(Game.Player.Handle, modelHash);
@@ -2239,7 +2130,7 @@ namespace vMenuClient
                     if (wasInVehicle && veh != null && seat != VehicleSeat.None)
                     {
                         FreezeEntityPosition(Game.PlayerPed.Handle, true);
-                        var tmpTimer = GetGameTimer();
+                        int tmpTimer = GetGameTimer();
                         while (!Game.PlayerPed.IsInVehicle(veh))
                         {
                             // if it takes too long, stop trying to teleport.
@@ -2272,8 +2163,8 @@ namespace vMenuClient
 
                     for (var i = 0; i < 21; i++)
                     {
-                        var prop = pedCustomizationOptions.props[i];
-                        var propTexture = pedCustomizationOptions.propTextures[i];
+                        int prop = pedCustomizationOptions.props[i];
+                        int propTexture = pedCustomizationOptions.propTextures[i];
                         if (prop == -1 || propTexture == -1)
                         {
                             ClearPedProp(ped, i);
@@ -2322,7 +2213,7 @@ namespace vMenuClient
         /// </summary>
         public static async void SpawnPedByName()
         {
-            var input = await GetUserInput(windowTitle: "Enter Ped Model Name", maxInputLength: 30);
+            string input = await GetUserInput(windowTitle: "Enter Ped Model Name", maxInputLength: 30);
             if (!string.IsNullOrEmpty(input))
             {
                 await SetPlayerSkin((uint)GetHashKey(input), new PedInfo() { version = -1 });
@@ -2340,7 +2231,7 @@ namespace vMenuClient
         /// </summary>
         public static async Task<bool> SavePed(string forceName = null, bool overrideExistingPed = false)
         {
-            var name = forceName;
+            string name = forceName;
             if (string.IsNullOrEmpty(name))
             {
                 // Get the save name.
@@ -2351,14 +2242,14 @@ namespace vMenuClient
             if (!string.IsNullOrEmpty(name))
             {
                 // Create a dictionary to store all data in.
-                var data = new PedInfo();
+                PedInfo data = new PedInfo();
 
                 // Get the ped.
-                var ped = Game.PlayerPed.Handle;
+                int ped = Game.PlayerPed.Handle;
 
                 data.version = 1;
                 // Get the ped model hash & add it to the dictionary.
-                var model = (uint)GetEntityModel(ped);
+                uint model = (uint)GetEntityModel(ped);
                 data.model = model;
 
                 // Loop through all drawable variations.
@@ -2366,8 +2257,8 @@ namespace vMenuClient
                 var drawableTextures = new Dictionary<int, int>();
                 for (var i = 0; i < 21; i++)
                 {
-                    var drawable = GetPedDrawableVariation(ped, i);
-                    var textureVariation = GetPedTextureVariation(ped, i);
+                    int drawable = GetPedDrawableVariation(ped, i);
+                    int textureVariation = GetPedTextureVariation(ped, i);
                     drawables.Add(i, drawable);
                     drawableTextures.Add(i, textureVariation);
                 }
@@ -2379,15 +2270,15 @@ namespace vMenuClient
                 // Loop through all prop variations.
                 for (var i = 0; i < 21; i++)
                 {
-                    var prop = GetPedPropIndex(ped, i);
-                    var propTexture = GetPedPropTextureIndex(ped, i);
+                    int prop = GetPedPropIndex(ped, i);
+                    int propTexture = GetPedPropTextureIndex(ped, i);
                     props.Add(i, prop);
                     propTextures.Add(i, propTexture);
                 }
                 data.props = props;
                 data.propTextures = propTextures;
 
-                data.isMpPed = model == (uint)GetHashKey("mp_f_freemode_01") || model == (uint)GetHashKey("mp_m_freemode_01");
+                data.isMpPed = (model == (uint)GetHashKey("mp_f_freemode_01") || model == (uint)GetHashKey("mp_m_freemode_01"));
                 if (data.isMpPed)
                 {
                     Notify.Alert("Note, you should probably use the MP Character creator if you want more advanced features. Saving Multiplayer characters with this function does NOT save a lot of the online peds customization.");
@@ -2438,13 +2329,13 @@ namespace vMenuClient
         {
             if (savedName != "vMenu_tmp_saved_ped")
             {
-                var pi = StorageManager.GetSavedPedInfo("ped_" + savedName);
+                PedInfo pi = StorageManager.GetSavedPedInfo("ped_" + savedName);
                 Log(JsonConvert.SerializeObject(pi));
                 await SetPlayerSkin(pi.model, pi, restoreWeapons);
             }
             else
             {
-                var pi = StorageManager.GetSavedPedInfo(savedName);
+                PedInfo pi = StorageManager.GetSavedPedInfo(savedName);
                 Log(JsonConvert.SerializeObject(pi));
                 await SetPlayerSkin(pi.model, pi, restoreWeapons);
                 DeleteResourceKvp("vMenu_tmp_saved_ped");
@@ -2558,16 +2449,16 @@ namespace vMenuClient
         /// <returns></returns>
         public static MenuItem GetSpacerMenuItem(string title, string description = null)
         {
-            var output = "~h~";
-            var length = title.Length;
-            var totalSize = 80 - length;
+            string output = "~h~";
+            int length = title.Length;
+            int totalSize = 80 - length;
 
-            for (var i = 0; i < (totalSize / 2) - (length / 2); i++)
+            for (var i = 0; i < totalSize / 2 - (length / 2); i++)
             {
                 output += " ";
             }
             output += title;
-            var item = new MenuItem(output, description ?? "")
+            MenuItem item = new MenuItem(output, description ?? "")
             {
                 Enabled = false
             };
@@ -2582,10 +2473,7 @@ namespace vMenuClient
         /// <param name="data"></param>
         public static void Log(string data)
         {
-            if (MainMenu.DebugMode)
-            {
-                Debug.WriteLine(@data);
-            }
+            if (MainMenu.DebugMode) Debug.WriteLine(@data);
         }
         #endregion
 
@@ -2606,12 +2494,12 @@ namespace vMenuClient
         /// </summary>
         public static async void SetAllWeaponsAmmo()
         {
-            var inputAmmo = await GetUserInput(windowTitle: "Enter Ammo Amount", defaultText: "100");
+            string inputAmmo = await GetUserInput(windowTitle: "Enter Ammo Amount", defaultText: "100");
             if (!string.IsNullOrEmpty(inputAmmo))
             {
-                if (int.TryParse(inputAmmo, out var ammo))
+                if (int.TryParse(inputAmmo, out int ammo))
                 {
-                    foreach (var vw in ValidWeapons.WeaponList)
+                    foreach (ValidWeapon vw in ValidWeapons.WeaponList)
                     {
                         if (HasPedGotWeapon(Game.PlayerPed.Handle, vw.Hash, false))
                         {
@@ -2635,8 +2523,8 @@ namespace vMenuClient
         /// </summary>
         public static async void SpawnCustomWeapon()
         {
-            var ammo = 900;
-            var inputName = await GetUserInput(windowTitle: "Enter Weapon Model Name", maxInputLength: 30);
+            int ammo = 900;
+            string inputName = await GetUserInput(windowTitle: "Enter Weapon Model Name", maxInputLength: 30);
             if (!string.IsNullOrEmpty(inputName))
             {
                 if (!ValidWeapons.weaponPermissions.ContainsKey(inputName.ToLower()))
@@ -2689,7 +2577,7 @@ namespace vMenuClient
             }
             else
             {
-                var kvp = GetResourceKvpString(saveName.StartsWith("vmenu_string_saved_weapon_loadout_") ? saveName : "vmenu_string_saved_weapon_loadout_" + saveName);
+                string kvp = GetResourceKvpString(saveName.StartsWith("vmenu_string_saved_weapon_loadout_") ? saveName : "vmenu_string_saved_weapon_loadout_" + saveName);
                 if (string.IsNullOrEmpty(kvp))
                 {
                     return new List<ValidWeapon>();
@@ -2710,9 +2598,9 @@ namespace vMenuClient
 
             if (!ignoreSettingsAndPerms && saveName == "vmenu_temp_weapons_loadout_before_respawn")
             {
-                var name = GetResourceKvpString("vmenu_string_default_loadout") ?? saveName;
+                string name = GetResourceKvpString("vmenu_string_default_loadout") ?? saveName;
 
-                var kvp = GetResourceKvpString(name) ?? GetResourceKvpString("vmenu_temp_weapons_loadout_before_respawn");
+                string kvp = GetResourceKvpString(name) ?? GetResourceKvpString("vmenu_temp_weapons_loadout_before_respawn");
 
                 // if not allowed to use loadouts, fall back to normal restoring of weapons.
                 if (MainMenu.WeaponLoadoutsMenu == null || !MainMenu.WeaponLoadoutsMenu.WeaponLoadoutsSetLoadoutOnRespawn || !IsAllowed(Permission.WLEquipOnRespawn))
@@ -2751,7 +2639,7 @@ namespace vMenuClient
                     Notify.Alert("One or more weapon(s) in this saved loadout are not allowed on this server. Those weapons will not be loaded.");
                 }
 
-                foreach (var w in loadout)
+                foreach (ValidWeapon w in loadout)
                 {
                     if (ignoreSettingsAndPerms || IsAllowed(w.Perm))
                     {
@@ -2766,7 +2654,7 @@ namespace vMenuClient
                                 if (DoesWeaponTakeWeaponComponent(w.Hash, wc.Value))
                                 {
                                     GiveWeaponComponentToPed(Game.PlayerPed.Handle, w.Hash, wc.Value);
-                                    var timer = GetGameTimer();
+                                    int timer = GetGameTimer();
                                     while (!HasPedGotWeaponComponent(Game.PlayerPed.Handle, w.Hash, wc.Value))
                                     {
                                         await Delay(0);
@@ -2785,7 +2673,7 @@ namespace vMenuClient
 
                         if (w.CurrentAmmo > 0)
                         {
-                            var ammo = w.CurrentAmmo;
+                            int ammo = w.CurrentAmmo;
                             if (w.CurrentAmmo > w.GetMaxAmmo)
                             {
                                 ammo = w.GetMaxAmmo;
@@ -2798,7 +2686,7 @@ namespace vMenuClient
                                     SetCurrentPedWeapon(Game.PlayerPed.Handle, w.Hash, true);
                                 }
                                 doIt = true;
-                                var ammoInClip = GetMaxAmmoInClip(Game.PlayerPed.Handle, w.Hash, false);
+                                int ammoInClip = GetMaxAmmoInClip(Game.PlayerPed.Handle, w.Hash, false);
                                 if (ammoInClip > ammo)
                                 {
                                     ammoInClip = ammo;
@@ -2816,9 +2704,7 @@ namespace vMenuClient
                 SetCurrentPedWeapon(Game.PlayerPed.Handle, (uint)GetHashKey("weapon_unarmed"), true);
 
                 if (!(saveName == "vmenu_temp_weapons_loadout_before_respawn" || dontNotify))
-                {
                     Notify.Success("Weapon loadout spawned.");
-                }
             }
         }
 
@@ -2834,7 +2720,7 @@ namespace vMenuClient
                 return false;
             }
 
-            var pedWeapons = new List<ValidWeapon>();
+            List<ValidWeapon> pedWeapons = new List<ValidWeapon>();
 
             // Loop through all possible weapons.
             foreach (var vw in ValidWeapons.WeaponList)
@@ -2843,15 +2729,14 @@ namespace vMenuClient
                 if (HasPedGotWeapon(Game.PlayerPed.Handle, vw.Hash, false))
                 {
                     // Create the weapon data with basic info.
-                    var weapon = new ValidWeapon
+                    ValidWeapon weapon = new ValidWeapon()
                     {
                         Hash = vw.Hash,
                         CurrentTint = GetPedWeaponTintIndex(Game.PlayerPed.Handle, vw.Hash),
                         Name = vw.Name,
                         Perm = vw.Perm,
                         SpawnName = vw.SpawnName,
-                        Components = new Dictionary<string, uint>(),
-                        CurrentAmmo = GetAmmoInPedWeapon(Game.PlayerPed.Handle, vw.Hash)
+                        Components = new Dictionary<string, uint>()
                     };
 
                     weapon.CurrentAmmo = GetAmmoInPedWeapon(Game.PlayerPed.Handle, vw.Hash);
@@ -2875,7 +2760,7 @@ namespace vMenuClient
             }
 
             // Convert the weapons list to json string.
-            var json = JsonConvert.SerializeObject(pedWeapons);
+            string json = JsonConvert.SerializeObject(pedWeapons);
 
             // Save it.
             SetResourceKvp(saveName, json);
@@ -2901,7 +2786,7 @@ namespace vMenuClient
         {
             if (IsPedModel(Game.PlayerPed.Handle, (uint)GetHashKey("mp_f_freemode_01")) || IsPedModel(Game.PlayerPed.Handle, (uint)GetHashKey("mp_m_freemode_01")))
             {
-                var isPedMale = IsPedModel(Game.PlayerPed.Handle, (uint)GetHashKey("mp_m_freemode_01"));
+                bool isPedMale = IsPedModel(Game.PlayerPed.Handle, (uint)GetHashKey("mp_m_freemode_01"));
                 ClearPedAlternateMovementAnim(Game.PlayerPed.Handle, 0, 1f);
                 ClearPedAlternateMovementAnim(Game.PlayerPed.Handle, 1, 1f);
                 ClearPedAlternateMovementAnim(Game.PlayerPed.Handle, 2, 1f);
@@ -3051,8 +2936,8 @@ namespace vMenuClient
         {
             if (IsPedInAnyVehicle(ped, false))
             {
-                var vehicle = GetVehiclePedIsIn(ped, false);
-                var blipSprite = BlipInfo.GetBlipSpriteForVehicle(vehicle);
+                int vehicle = GetVehiclePedIsIn(ped, false);
+                int blipSprite = BlipInfo.GetBlipSpriteForVehicle(vehicle);
                 if (GetBlipSprite(blip) != blipSprite)
                 {
                     SetBlipSprite(blip, blipSprite);
@@ -3111,8 +2996,8 @@ namespace vMenuClient
         /// <returns></returns>
         internal static Vector3[] GetEntityBoundingBox(int entity)
         {
-            var min = Vector3.Zero;
-            var max = Vector3.Zero;
+            Vector3 min = Vector3.Zero;
+            Vector3 max = Vector3.Zero;
 
             GetModelDimensions((uint)GetEntityModel(entity), ref min, ref max);
             //const float pad = 0f;
@@ -3218,17 +3103,17 @@ namespace vMenuClient
         {
             foreach (var poly in polyCollection)
             {
-                var x1 = poly[0].X;
-                var y1 = poly[0].Y;
-                var z1 = poly[0].Z;
+                float x1 = poly[0].X;
+                float y1 = poly[0].Y;
+                float z1 = poly[0].Z;
 
-                var x2 = poly[1].X;
-                var y2 = poly[1].Y;
-                var z2 = poly[1].Z;
+                float x2 = poly[1].X;
+                float y2 = poly[1].Y;
+                float z2 = poly[1].Z;
 
-                var x3 = poly[2].X;
-                var y3 = poly[2].Y;
-                var z3 = poly[2].Z;
+                float x3 = poly[2].X;
+                float y3 = poly[2].Y;
+                float z3 = poly[2].Z;
                 DrawPoly(x1, y1, z1, x2, y2, z2, x3, y3, z3, r, g, b, a);
             }
         }
@@ -3245,13 +3130,13 @@ namespace vMenuClient
         {
             foreach (var line in linesCollection)
             {
-                var x1 = line[0].X;
-                var y1 = line[0].Y;
-                var z1 = line[0].Z;
+                float x1 = line[0].X;
+                float y1 = line[0].Y;
+                float z1 = line[0].Z;
 
-                var x2 = line[1].X;
-                var y2 = line[1].Y;
-                var z2 = line[1].Z;
+                float x2 = line[1].X;
+                float y2 = line[1].Y;
+                float z2 = line[1].Z;
 
                 DrawLine(x1, y1, z1, x2, y2, z2, r, g, b, a);
             }
@@ -3270,7 +3155,7 @@ namespace vMenuClient
         /// <returns></returns>
         public static float Map(float value, float min_in, float max_in, float min_out, float max_out)
         {
-            return ((value - min_in) * (max_out - min_out) / (max_in - min_in)) + min_out;
+            return (value - min_in) * (max_out - min_out) / (max_in - min_in) + min_out;
         }
 
         /// <summary>
@@ -3284,7 +3169,7 @@ namespace vMenuClient
         /// <returns></returns>
         public static double Map(double value, double min_in, double max_in, double min_out, double max_out)
         {
-            return ((value - min_in) * (max_out - min_out) / (max_in - min_in)) + min_out;
+            return (value - min_in) * (max_out - min_out) / (max_in - min_in) + min_out;
         }
         #endregion
 
@@ -3295,7 +3180,7 @@ namespace vMenuClient
             MainMenu.PlayersList.RequestPlayerList();
             await MainMenu.PlayersList.WaitRequested();
 
-            var name = MainMenu.PlayersList.ToList()
+            string name = MainMenu.PlayersList.ToList()
                 .Find(plr => plr.ServerId.ToString() == source)?.Name ?? "**Invalid**";
 
             if (MainMenu.MiscSettingsMenu == null || MainMenu.MiscSettingsMenu.MiscDisablePrivateMessages)
@@ -3307,12 +3192,12 @@ namespace vMenuClient
                 return;
             }
 
-            var sourcePlayer = new Player(GetPlayerFromServerId(int.Parse(source)));
+            Player sourcePlayer = new Player(GetPlayerFromServerId(int.Parse(source)));
             if (sourcePlayer != null)
             {
-                var headshotHandle = RegisterPedheadshot(sourcePlayer.Character.Handle);
-                var timer = GetGameTimer();
-                var tookTooLong = false;
+                int headshotHandle = RegisterPedheadshot(sourcePlayer.Character.Handle);
+                int timer = GetGameTimer();
+                bool tookTooLong = false;
                 while (!IsPedheadshotReady(headshotHandle) || !IsPedheadshotValid(headshotHandle))
                 {
                     await Delay(0);
@@ -3325,7 +3210,7 @@ namespace vMenuClient
                 }
                 if (!tookTooLong)
                 {
-                    var headshotTxd = GetPedheadshotTxdString(headshotHandle);
+                    string headshotTxd = GetPedheadshotTxdString(headshotHandle);
                     if (sent)
                     {
                         Notify.CustomImage(headshotTxd, headshotTxd, message, $"<C>{GetSafePlayerName(name)}</C>", "Message Sent", true, 1);
@@ -3354,17 +3239,17 @@ namespace vMenuClient
         #region Keyfob personal vehicle func
         public static async void PressKeyFob(Vehicle veh)
         {
-            var player = Game.Player;
+            Player player = Game.Player;
             if (player != null && !player.IsDead && !player.Character.IsInVehicle())
             {
-                var KeyFobHashKey = (uint)GetHashKey("p_car_keys_01");
+                uint KeyFobHashKey = (uint)GetHashKey("p_car_keys_01");
                 RequestModel(KeyFobHashKey);
                 while (!HasModelLoaded(KeyFobHashKey))
                 {
                     await Delay(0);
                 }
 
-                var KeyFobObject = CreateObject((int)KeyFobHashKey, 0, 0, 0, true, true, true);
+                int KeyFobObject = CreateObject((int)KeyFobHashKey, 0, 0, 0, true, true, true);
                 AttachEntityToEntity(KeyFobObject, player.Character.Handle, GetPedBoneIndex(player.Character.Handle, 57005), 0.09f, 0.03f, -0.02f, -76f, 13f, 28f, false, true, true, true, 0, true);
                 SetModelAsNoLongerNeeded(KeyFobHashKey); // cleanup model from memory
 
@@ -3394,7 +3279,7 @@ namespace vMenuClient
                     TaskTurnPedToFaceEntity(player.Character.Handle, veh.Handle, 500);
                 }
 
-                var animDict = "anim@mp_player_intmenu@key_fob@";
+                string animDict = "anim@mp_player_intmenu@key_fob@";
                 RequestAnimDict(animDict);
                 while (!HasAnimDictLoaded(animDict))
                 {
@@ -3476,7 +3361,7 @@ namespace vMenuClient
         {
             var pos = Game.PlayerPed.Position;
             var heading = Game.PlayerPed.Heading;
-            var locationName = await GetUserInput("Enter location save name", 30);
+            string locationName = await GetUserInput("Enter location save name", 30);
             if (string.IsNullOrEmpty(locationName))
             {
                 Notify.Error(CommonErrors.InvalidInput);

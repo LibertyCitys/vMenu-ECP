@@ -6,7 +6,7 @@ games {'gta5'}
 -- Resource stuff
 name 'PF-vMenu'
 description 'A fork of vMenu, a server sided menu for FiveM with custom permissions.'
-version 'v1.1.3'
+version 'v3.5.1-PF'
 author 'ribbitpoison/Tom Grobbe'
 url 'https://github.com/ProjectFairnessLabs/PF-vMenu/'
 ui_page 'storage.html'
@@ -15,7 +15,7 @@ ui_page 'storage.html'
 default_language "English"
 
 -- Add the names of the jsons added to config/languages here in the current format
-languages 'English, Spanish'
+languages 'English'
 
 -- Adds additional logging, useful when debugging issues.
 client_debug_mode 'false'
@@ -30,10 +30,9 @@ files {
     'Newtonsoft.Json.dll',
     'MenuAPI.dll',
     'config/*.json',
-    'config/languages/*.json',
+    'config/**/*.json',
     'storage.html'
 }
-client_script {'plugin-config.lua', 'plugins/***/*.lua', 'plugins/*.lua'}
 
 client_script 'vMenuClient.net.dll'
 server_script 'vMenuServer.net.dll'
