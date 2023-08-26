@@ -74,6 +74,7 @@ namespace vMenuShared
             VORepair,
             VOWash,
             VOEngine,
+            VODestroyEngine,
             VOBikeSeatbelt,
             VOSpeedLimiter,
             VOChangePlate,
@@ -100,8 +101,11 @@ namespace vMenuShared
             VOFlashHighbeamsOnHonk,
             VODisableTurbulence,
             VOInfiniteFuel,
+            VOReduceDriftSuspension,
             VOFlares,
             VOPlaneBombs,
+            VOVehiclesBlacklist,
+            VODisableFromDefaultList,
             #endregion
 
             // Vehicle Spawner
@@ -167,6 +171,18 @@ namespace vMenuShared
             PASpawnSaved,
             PASpawnNew,
             PAAddonPeds,
+            PAAnimalPeds,
+            PASpawnAsDefault,
+            #endregion
+
+            // Teleport Options
+            #region teleport options
+            TPMenu,
+            TPAll,
+            TPTeleportToWp,
+            TPTeleportToCoord,
+            TPTeleportLocations,
+            TPTeleportSaveLocation,
             #endregion
 
             // Teleport Options
@@ -367,6 +383,15 @@ namespace vMenuShared
             WLEquipOnRespawn,
             #endregion
 
+            // Enhanced Camera Menu
+            #region enhanced camera
+            ECMenu,
+            ECAll,
+            ECLeadCamera,
+            ECChaseCamera,
+            ECDroneCamera,
+            #endregion
+
             // Misc Settings
             #region misc settings
             MSAll,
@@ -389,6 +414,7 @@ namespace vMenuShared
             MSRestoreWeapons,
             MSDriftMode,
             MSEntitySpawner,
+            MSDevTools,
             #endregion
 
             // Voice Chat
@@ -398,6 +424,18 @@ namespace vMenuShared
             VCEnable,
             VCShowSpeaker,
             VCStaffChannel,
+            #endregion
+
+            // Plugin Menu
+            #region plugin menu
+            PNMenu,
+            PNAll,
+            PNEasyDrift,
+            #endregion
+
+            // Bug Prevention
+            #region bug prevention
+            BPCarlaunch,
             #endregion
         }
         public static Dictionary<Permission, bool> Permissions { get; private set; } = new Dictionary<Permission, bool>();
@@ -412,7 +450,7 @@ namespace vMenuShared
         /// <param name="source"></param>
         /// <param name="checkAnyway">if true, then the permissions will be checked even if they aren't setup yet.</param>
         /// <returns></returns>
-        public static bool IsAllowed(Permission permission, Player source, bool checkAnyway = false) => IsAllowedServer(permission, source);
+        public static bool IsAllowed(Permission permission, Player source) => IsAllowedServer(permission, source);
 #endif
 
 #if CLIENT
@@ -424,7 +462,7 @@ namespace vMenuShared
         /// <returns></returns>
         public static bool IsAllowed(Permission permission, bool checkAnyway = false) => IsAllowedClient(permission, checkAnyway);
 
-        private static Dictionary<Permission, bool> allowedPerms = new Dictionary<Permission, bool>();
+        private static readonly Dictionary<Permission, bool> allowedPerms = new();
         /// <summary>
         /// Private function that handles client side permission requests.
         /// </summary>
@@ -434,7 +472,7 @@ namespace vMenuShared
         {
             if (ArePermissionsSetup || checkAnyway)
             {
-                bool staffPermissionAllowed = (
+                var staffPermissionAllowed = (
                     Permissions.ContainsKey(Permission.Staff) && Permissions[Permission.Staff]
                 ) || (
                     Permissions.ContainsKey(Permission.Everything) && Permissions[Permission.Everything]
@@ -446,12 +484,16 @@ namespace vMenuShared
                 }
 
                 if (allowedPerms.ContainsKey(permission) && allowedPerms[permission])
+                {
                     return true;
+                }
                 else if (!allowedPerms.ContainsKey(permission))
+                {
                     allowedPerms[permission] = false;
+                }
 
                 // Get a list of all permissions that are (parents) of the current permission, including the current permission.
-                List<Permission> permissionsToCheck = GetPermissionAndParentPermissions(permission);
+                var permissionsToCheck = GetPermissionAndParentPermissions(permission);
 
                 // Check if any of those permissions is allowed, if so, return true.
                 if (permissionsToCheck.Any(p => Permissions.ContainsKey(p) && Permissions[p]))
@@ -485,7 +527,7 @@ namespace vMenuShared
         }
 #endif
 
-        private static Dictionary<Permission, List<Permission>> parentPermissions = new Dictionary<Permission, List<Permission>>();
+        private static readonly Dictionary<Permission, List<Permission>> parentPermissions = new();
 
         /// <summary>
         /// Gets the current permission and all parent permissions.
@@ -501,12 +543,12 @@ namespace vMenuShared
             else
             {
                 var list = new List<Permission>() { Permission.Everything, permission };
-                string permStr = permission.ToString();
+                var permStr = permission.ToString();
 
                 // if the first 2 characters are both uppercase
                 if (permStr.Substring(0, 2).ToUpper() == permStr.Substring(0, 2))
                 {
-                    if (!(permStr.Substring(2) == "All" || permStr.Substring(2) == "Menu"))
+                    if (permStr.Substring(2) is not ("All" or "Menu" or "VehiclesBlacklist" or "DisableFromDefaultList" or "AllowOpenWheel"))
                     {
                         list.AddRange(Enum.GetValues(typeof(Permission)).Cast<Permission>().Where(a => a.ToString() == permStr.Substring(0, 2) + "All"));
                     }
@@ -525,14 +567,14 @@ namespace vMenuShared
         /// Sets the permissions for a specific player (checks server side, sends event to client side).
         /// </summary>
         /// <param name="player"></param>
-        public static void SetPermissionsForPlayer([FromSource]Player player)
+        public static void SetPermissionsForPlayer([FromSource] Player player)
         {
             if (player == null)
             {
                 return;
             }
 
-            Dictionary<Permission, bool> perms = new Dictionary<Permission, bool>();
+            var perms = new Dictionary<Permission, bool>();
 
             // If enabled in the permissions.cfg (disabled by default) then this will give me (only me) the option to trigger some debug commands and 
             // try out menu options. This only works if I'm in-game on your server, and you have enabled server debugging mode, this way I will never
@@ -546,7 +588,7 @@ namespace vMenuShared
             {
                 foreach (var p in Enum.GetValues(typeof(Permission)))
                 {
-                    Permission permission = (Permission)p;
+                    var permission = (Permission)p;
                     switch (permission)
                     {
                         // don't allow any of the following permissions if perms are ignored.
@@ -572,9 +614,11 @@ namespace vMenuShared
                 // Loop through all permissions and check if they're allowed.
                 foreach (var p in Enum.GetValues(typeof(Permission)))
                 {
-                    Permission permission = (Permission)p;
+                    var permission = (Permission)p;
                     if (!perms.ContainsKey(permission))
+                    {
                         perms.Add(permission, IsAllowed(permission, player)); // triggers IsAllowedServer
+                    }
                 }
             }
 
@@ -610,9 +654,9 @@ namespace vMenuShared
         /// <returns></returns>
         private static string GetAceName(Permission permission)
         {
-            string name = permission.ToString();
+            var name = permission.ToString();
 
-            string prefix = "vMenu.";
+            var prefix = "vMenu.";
 
             switch (name.Substring(0, 2))
             {
@@ -657,6 +701,15 @@ namespace vMenuShared
                     break;
                 case "TP":
                     prefix += "TeleportOptions";
+                    break;
+                case "PN":
+                    prefix += "PluginMenu";
+                    break;
+                case "BP":
+                    prefix += "BugPrevention";
+                    break;
+                case "EC":
+                    prefix += "EnhancedCamera";
                     break;
                 default:
                     return prefix + name;
